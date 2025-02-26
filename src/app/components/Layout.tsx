@@ -10,7 +10,7 @@ export default function Layout({ children }: { children: React.ReactNode}) {
       <Navbar />
       <CookieBanner />
       {typeof window !== "undefined" && localStorage.getItem("cookieConsent") === "true" && <GoogleTagManager />}
-      <main className="bg-gray-50 text-gray-800 flex-grow">{children}</main>
+      <main className="bg-gray-100 text-gray-800 flex-grow">{children}</main>
       <Footer />
     </div>
   )
