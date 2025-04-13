@@ -1,0 +1,60 @@
+.loader-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+  }
+  
+  .loaderDark {
+    width: 4px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    box-shadow: 
+      19px -19px 0 0px #34db34, 38px -19px 0 0px #c18c5d, 57px -19px 0 0px #5c5470,
+      19px 0     0 5px #a8e6cf, 38px 0     0 5px #c18c5d, 57px 0     0 5px #5c5470,
+      19px 19px  0 0px #a8e6cf, 38px 19px  0 0px #c18c5d, 57px 19px  0 0px #5c5470;
+  
+    transform: translateX(-38px);
+    animation: l26-dark 3s infinite linear;
+  }
+  
+  @keyframes l26-dark {
+    12.5% {
+      box-shadow: 
+        19px -19px 0 0px #a8e6cf, 38px -19px 0 0px #977119, 57px -19px 0 5px #321382,
+        19px 0     0 5px #34db34, 38px 0     0 0px #977119, 57px 0     0 5px #321382,
+        19px 19px  0 0px #a8e6cf, 38px 19px  0 0px #977119, 57px 19px  0 0px #321382;
+    }
+    25% {
+      box-shadow: 
+        19px -19px 0 5px #a8e6cf, 38px -19px 0 0px #977119, 57px -19px 0 5px #321382,
+        19px 0     0 0px #03551b, 38px 0     0 0px #977119, 57px 0     0 0px #321382,
+        19px 19px  0 0px #34db34, 38px 19px  0 5px #977119, 57px 19px  0 0px #321382;
+    }
+    50% {
+      box-shadow: 
+        19px -19px 0 5px #03551b, 38px -19px 0 5px #c18c5d, 57px -19px 0 0px #321382,
+        19px 0     0 0px #a8e6cf, 38px 0     0 0px #c18c5d, 57px 0     0 0px #321382,
+        19px 19px  0 0px #34db34, 38px 19px  0 0px #c18c5d, 57px 19px  0 5px #321382;
+    }
+    62.5% {
+      box-shadow: 
+        19px -19px 0 0px #34db34, 38px -19px 0 0px #d3bf07, 57px -19px 0 0px #7059ab,
+        19px 0     0 5px #a8e6cf, 38px 0     0 0px #d3bf07, 57px 0     0 0px #7059ab,
+        19px 19px  0 0px #03551b, 38px 19px  0 5px #d3bf07, 57px 19px  0 5px #7059ab;
+    }
+    75% {
+      box-shadow: 
+        19px -19px 0 0px #a8e6cf, 38px -19px 0 5px #d3bf07, 57px -19px 0 0px #7059ab,
+        19px 0     0 0px #34db34, 38px 0     0 0px #d3bf07, 57px 0     0 5px #7059ab,
+        19px 19px  0 0px #03551b, 38px 19px  0 0px #d3bf07, 57px 19px  0 5px #7059ab;
+    }
+    87.5% {
+      box-shadow: 
+        19px -19px 0 0px #34db34, 38px -19px 0 5px #d3bf07, 57px -19px 0 0px #7059ab,
+        19px 0     0 0px #a8e6cf, 38px 0     0 5px #d3bf07, 57px 0     0 0px #7059ab,
+        19px 19px  0 5px #03551b, 38px 19px  0 0px #d3bf07, 57px 19px  0 0px #7059ab;
+    }
+  }
+  
