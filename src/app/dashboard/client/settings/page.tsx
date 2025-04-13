@@ -27,7 +27,7 @@ export default function ClientSettings() {
   
   useEffect(() => {
     if (session?.user?.id) {
-      fetch(`/api/user/${session.user.id}`)
+      fetch(`/api/users/${session.user.id}`)
         .then((res) => res.json())
         .then((data) => {
           if (data.error) throw new Error(data.error);
@@ -50,7 +50,7 @@ export default function ClientSettings() {
     setLoading(true);
   
     try {
-      const res = await fetch("/api/user/update", {
+      const res = await fetch("/api/users/update", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData),
@@ -82,7 +82,7 @@ export default function ClientSettings() {
     setLoading(false);
 
     try {
-      const res = await fetch('/api/user/update', {
+      const res = await fetch('/api/users/update', {
         method: "PUT",
         headers: { "Content-Type": 'application/json' },
         body: JSON.stringify(passwordData),
@@ -115,7 +115,7 @@ export default function ClientSettings() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/user/delete", {
+      const res = await fetch("/api/users/delete", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),

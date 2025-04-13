@@ -20,7 +20,7 @@ export default function ClientOrders() {
   useEffect(() => {
     if (session?.user?.id) {
       setLoading(true);
-      fetch(`/api/user/${session.user.id}/orders`)
+      fetch(`/api/users/${session.user.id}/orders`)
         .then((res) => {
           if (!res.ok) throw new Error("Erreur lors de la récupération des commandes");
           return res.json();

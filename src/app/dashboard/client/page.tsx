@@ -26,7 +26,7 @@ export default function ClientDashboard() {
   useEffect(() => {
     if (session?.user?.id) {
       setLoading(true);
-      fetch(`/api/user/${session.user.id}`)
+      fetch(`/api/users/${session.user.id}`)
         .then((res) => {
           if (!res.ok) throw new Error("Utilisateur non trouvé");
           return res.json();

@@ -85,8 +85,6 @@ export default function Navbar() {
               </span>
             )}
           </button>
-          <Link href="/register" className="text-gray-300 font-bold hover:text-secondary transition">S'inscrire</Link>
-          <span className="text-secondary font-bold text-xl">|</span>
           <Link href="/login" className="text-gray-300 font-bold hover:text-secondary transition">Se connecter</Link>
         </div>
 
@@ -118,11 +116,8 @@ export default function Navbar() {
         <button className="absolute top-8 right-8 text-3xl text-white" onClick={toggleMenu}>
           <FiX />
         </button>
-        <div className="mt-24 flex justify-center space-x-6">
-          <Link href="/register" className="text-white hover:text-pink-400 transition">
-            S'inscrire
-          </Link>
-          <Link href="/login" className="text-white hover:text-pink-400 transition">
+        <div className="mt-24 flex justify-center space-x-6 text-xl">
+          <Link href="/login" className="text-pink-500 hover:text-pink-400 transition">
             Se connecter
           </Link>
         </div>
