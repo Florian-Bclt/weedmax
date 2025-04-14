@@ -88,6 +88,18 @@ const ProductDetailsModal: React.FC<{ productId: string; onClose: () => void }> 
         {/* Description */}
         <p className="mt-4 text-gray-300">{product.description}</p>
 
+        {/* Listes des caractéristiques */}
+        {product.specs && product.specs.length > 0 && (
+          <div className="my-2">
+            <h3 className="text-2xl font-bold text-red-400 mb-3">Caractéristiques</h3>
+            <ul className="list-disc list-inside space-y-1 text-gray-300">
+              {product.specs.map((spec: string, index: number) => (
+                <li key={index}>{spec}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* Caractéristiques */}
         <h3 className="text-lg font-semibold mt-4">Variantes disponibles :</h3>
         <ul className="pl-2 mt-2 text-sm text-gray-300 space-y-1">

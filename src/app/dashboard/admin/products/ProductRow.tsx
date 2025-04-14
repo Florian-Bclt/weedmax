@@ -11,14 +11,18 @@ import { useRouter } from "next/navigation";
 const ProductRow: React.FC<{ product: ProductWithVariants }> = ({ product }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const router = useRouter();
 
   const deleteProduct = async () => {
+    setIsDeleting(true);
     try {
     await fetch(`/api/products/${product.id}`, { method: "DELETE" });
     window.location.reload();
     } catch (error) {
     console.error("Erreur lors de la suppression:", error);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -62,7 +66,7 @@ const ProductRow: React.FC<{ product: ProductWithVariants }> = ({ product }) => 
           <button onClick={() => router.push(`/dashboard/admin/products/edit/${product.id}`)} className="text-blue-400 hover:text-blue-600">
             <Pencil size={18} />
           </button>
-          <button onClick={() => setIsDeleting(true)} className="text-red-400 hover:text-red-600">
+          <button onClick={() => setShowDeleteModal(true)} className="text-red-400 hover:text-red-600">
             <Trash2 size={18} />
           </button>
         </td>
@@ -70,7 +74,7 @@ const ProductRow: React.FC<{ product: ProductWithVariants }> = ({ product }) => 
 
       {/* Affichage de la modal au clic */}
       {isModalOpen && ReactDOM.createPortal(<ProductDetailsModal productId={product.id} onClose={() => setIsModalOpen(false)} />, document.body)}
-      {isDeleting && ReactDOM.createPortal(<DeleteConfirmationModal onConfirm={deleteProduct} onCancel={() => setIsDeleting(false)} />, document.body)}
+      {showDeleteModal && ReactDOM.createPortal(<DeleteConfirmationModal onConfirm={deleteProduct} onCancel={() => setShowDeleteModal(false)} isLoading={isDeleting} />, document.body)}
     </>
   );
 };

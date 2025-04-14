@@ -86,7 +86,7 @@ const ProductDetailPage = () => {
   };
 
   return (
-    <div className="bg-gradient-light min-h-screen pb-12 flex items-center">
+    <div className="bg-gradient-light min-h-screen py-12 flex items-center">
       <div className="p-6 max-w-5xl mx-auto text-white bg-white rounded-xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 
@@ -154,6 +154,17 @@ const ProductDetailPage = () => {
                 </div>
               )}
             </div>
+
+            {product.specs && product.specs.length > 0 && (
+              <div className="my-2">
+                <h3 className="text-2xl font-bold text-red-400 mb-3">Caractéristiques</h3>
+                <ul className="list-disc list-inside space-y-1 text-gray-800 text-sm">
+                  {product.specs.map((spec: string, index: number) => (
+                    <li key={index}>{spec}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             <div className="flex items-center gap-2 mb-4">
               {[...Array(5)].map((_, i) => (
