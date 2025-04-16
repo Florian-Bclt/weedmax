@@ -33,7 +33,7 @@ const ProductCard = ({ product }: Props) => {
   }
 
   const handleVariantChange = (variantId: string) => {
-    const newVariant = selectedOption?.variants.find(variant => variant.id === variantId);
+    const newVariant = selectedOption?.variants.find((variant: typeof selectedOption.variants[0]) => variant.id === variantId);
     if (newVariant) {
       setSelectedVariant(newVariant);
     }
