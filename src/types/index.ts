@@ -1,4 +1,4 @@
-import { Product, ProductVariant } from "@prisma/client";
+import { Product, ProductOption, ProductVariant, Option } from "@prisma/client";
 
 export interface ProductData {
   name: string;
@@ -7,7 +7,10 @@ export interface ProductData {
   description: string;
   stock: number;
   categoryId: string;
-  variants: { quantity: number; price: number }[]; // Ajout des variantes
+  options: {
+    optionId: string;
+    variants: { quantity: number; price: number }[];
+  }[];
   isNew?: boolean | null;
   isPromo?: boolean | null;
   promoPercentage?: number | null;
@@ -22,7 +25,11 @@ export interface ProductUpdateData {
   description?: string;
   stock?: number;
   categoryId?: string;
-  variants?: { quantity: number; price: number }[];
+  options?: {
+    id?: string;
+    name: string;
+    variants: {id?: string, quantity: number; price: number }[];
+  }
   isNew?: boolean | null;
   isPromo?: boolean | null;
   promoPercentage?: number | null;
@@ -30,21 +37,34 @@ export interface ProductUpdateData {
   reviewCount?: number | null;
 }
 
-export interface ProductWithVariants extends Product {
+export interface ProductWithOptions extends Product {
   images: {
     url: string;
     public_id: string;
   }[];
-  variants: ProductVariant[];
-  category?: {
-    id: string;
-    name: string;
-  };
+  options: (ProductOption & {
+    option: Option;
+    variants: ProductVariant[];
+  })[];
+  category?: { id: string; name: string; };
   isNew: boolean | null;
   isPromo: boolean | null;
   promoPercentage: number | null;
   rating: number | null;
   reviewCount: number | null;
+}
+
+export interface OptionInput {
+  productId: string;           // Produit parent
+  name: string;                // CBD / MCP‑N / …
+  variants: {
+    quantity: number;
+    price: number;
+  }[];
+}
+
+export interface OptionWithVariants extends ProductOption {
+  variants: ProductVariant[];
 }
 
 export type UploadedImage = {

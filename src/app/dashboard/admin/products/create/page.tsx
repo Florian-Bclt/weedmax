@@ -7,6 +7,10 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import ImageUploader from "@/app/dashboard/admin/components/ImageUploader";
 import { UploadedImage } from "@/types";
+import toast from "react-hot-toast";
+
+type VariantInput = { quantity: string; price: string };
+type OptionBlock  = { optionId: string; variants: VariantInput[] };
 
 const CreateProductPage = () => {
   const router = useRouter();
@@ -23,20 +27,23 @@ const CreateProductPage = () => {
   });
 
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([])
+  const [optionsList, setOptionsList] = useState<{ id: string; name: string }[]>([])
+  const [optionBlocks, setOptionBlocks] = useState<OptionBlock[]>([
+    { optionId: "", variants: [{ quantity: "", price: "" }] }
+  ]);
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await fetch("/api/categories");
-        const data = await res.json();
-        setCategories(data);
-      } catch (error) {
-        console.error("Erreur chargement catégories :", error)
-      }
+    const fetchInit = async () => {
+      const [catRes, optRes] = await Promise.all([
+        fetch("/api/categories"),
+        fetch("/api/options")
+      ]);
+        setCategories(await catRes.json());
+        setOptionsList(await optRes.json());
     }
-    fetchCategories();
+    fetchInit();
   }, [])
 
   const [specs, setSpecs] = useState([
@@ -45,35 +52,73 @@ const CreateProductPage = () => {
     { key: "Taux THC", value: "" },
   ]);
 
-  const [variants, setVariants] = useState([{ quantity: "1", price: "0" }]);
-
   const handleSpecChange = (index: number, field: "key" | "value", value: string) => {
     const updatedSpecs = [...specs];
     updatedSpecs[index][field] = value;
     setSpecs(updatedSpecs);
   };
 
-  const handleVariantChange = (index: number, field: "quantity" | "price", value: string) => {
-    const updated = [...variants];
-    // const parsed = field === "quantity" ? parseInt(value, 10) : parseFloat(value);
-    updated[index][field] = value;
-    setVariants(updated);
-  };
-
   const addSpec = () => setSpecs([...specs, { key: "", value: "" }]);
   const removeSpec = (index: number) => setSpecs(specs.filter((_, i) => i !== index));
-
-  const addVariant = () => setVariants([...variants, { quantity: "", price: "" }]);
-  const removeVariant = (index: number) => setVariants(variants.filter((_, i) => i !== index));
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // ajouter / supprimer un bloc
+  const addOptionBlock    = () => setOptionBlocks(blocks => [...blocks, { optionId:"", variants:[{quantity:"",price:""}]}]);
+  const removeOptionBlock = (index:number) => setOptionBlocks(blocks => blocks.filter((_,i)=>i!==index));
+
+  // Choisir l'option (select)
+  const changeOptionId = (index:number, id:string) =>
+  setOptionBlocks(blocks => blocks.map((block,i)=> i===index? { ...block, optionId:id }: block));
+
+  // Gestion des variants dans un bloc
+  const addVariant    = (index:number) =>
+    setOptionBlocks(b => b.map((blk,i)=> i===index? { ...blk, variants:[...blk.variants,{quantity:"",price:""}]}: blk));
+  
+  const removeVariant    = (index:number, vIndex:number)=>
+    setOptionBlocks(b => b.map((blk,i)=> i===index? { ...blk, variants: blk.variants.filter((_,j)=>j!==vIndex)}: blk));
+  
+  const changeVariant = (index:number, vIndex:number, field:"quantity"|"price", value:string)=>
+    setOptionBlocks(b => b.map((blk,i)=> i!==index? blk : {
+      ...blk,
+      variants: blk.variants.map((v,j)=> j===vIndex? { ...v, [field]:value }: v)
+    }));
+
   const createProduct = async () => {
     setLoading(true);
     try {
-      if (!images.length) throw new Error("Aucune image n'a été uploadée");
+      // Vérifications
+      if (!formData.name || !formData.stock || !formData.description || !formData.categoryId) {
+        toast.error("Merci de remplir tous les champs obligatoires.");
+        setLoading(false);
+        return;
+      }
+
+      if (!images.length) {
+        toast.error("Merci d’uploader au moins une image.");
+        setLoading(false);
+        return;
+      }
+
+      const apiOptions = optionBlocks
+      .filter(option => option.optionId && option.variants.length)
+      .map(option => ({
+        optionId: option.optionId,
+        variants: option.variants
+          .filter(variant => variant.quantity && variant.price)
+          .map(variant => ({
+            quantity: parseInt(variant.quantity,10),
+            price   : parseFloat(variant.price.replace(",","."))
+          }))
+      }));
+
+      if (!apiOptions.length) {
+        toast.error("Ajoutez au moins une option avec ses variantes de prix.");
+        setLoading(false);
+        return;
+      }
 
       const res = await fetch("/api/products", {
         method: "POST",
@@ -86,21 +131,16 @@ const CreateProductPage = () => {
           reviewCount: formData.reviewCount ? parseInt(formData.reviewCount, 10) : null,
           images,
           specs: specs.filter((spec) => spec.key && spec.value),
-          variants: variants
-            .filter((v) => v.quantity && v.price)
-            .map((v) => ({
-              quantity: parseInt(v.quantity, 10),
-              price: parseFloat(v.price.replace(',', '.'))
-            }))
-            // Vérifie que les prix et la quantité sont bien des nombres valides
-            .filter((v) => !isNaN(v.quantity) && !isNaN(v.price))
+          options: apiOptions
         }),
       });
 
       if (!res.ok) throw new Error("Erreur lors de la création");
+      toast.success("Produit créé avec succès !");
       router.push("/dashboard/admin/products");
     } catch (error) {
       console.error("Erreur lors de la création :", error);
+      toast.error("Une erreur est survenue. Merci de vérifier les champs.");
     }
     setLoading(false);
   };
@@ -246,7 +286,62 @@ const CreateProductPage = () => {
       </button>
 
       {/* Variants */}
-      <h3 className="text-lg font-semibold mt-4">Variantes (quantité/prix) :</h3>
+      <h3 className="text-lg font-semibold mt-4">Variantes des produits :</h3>
+
+      {optionBlocks.map((blk, idx) => (
+        <div key={idx} className="mt-4 border-b pb-4">
+
+          {/* Sélection de l’option */}
+          <div className="flex items-center gap-4">
+            <select
+              value={blk.optionId}
+              onChange={(e)=>changeOptionId(idx, e.target.value)}
+              className="flex-1 p-2 bg-gray-800 border border-gray-600 rounded"
+            >
+              <option value="">Choisir une option (ex: CBD, Delta BZ10, etc.)</option>
+              {optionsList.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+            </select>
+
+            {/* supprimer le bloc */}
+            <button onClick={()=>removeOptionBlock(idx)} className="text-red-400 hover:text-red-600">
+              <Trash2 size={18}/>
+            </button>
+          </div>
+
+          {/* variants pour cette option */}
+          {blk.variants.map((v,vIdx)=>(
+            <div key={vIdx} className="flex gap-4 items-center mt-3">
+              <input
+                type="number"
+                placeholder="Quantité"
+                value={v.quantity}
+                onChange={(e)=>changeVariant(idx,vIdx,"quantity",e.target.value)}
+                className="w-1/2 p-2 rounded bg-gray-800 border border-gray-600"
+              />
+              <input
+                type="number"
+                step="0.01"
+                placeholder="Prix €"
+                value={v.price}
+                onChange={(e)=>changeVariant(idx,vIdx,"price",e.target.value)}
+                className="w-1/2 p-2 rounded bg-gray-800 border border-gray-600"
+              />
+              <button onClick={()=>removeVariant(idx,vIdx)} className="text-red-400 hover:text-red-600">
+                <Trash2 size={18}/>
+              </button>
+            </div>
+          ))}
+
+    <button onClick={()=>addVariant(idx)} className="flex items-center gap-2 mt-2 text-blue-400 hover:text-blue-600">
+      <PlusCircle size={18}/> Ajouter une variante
+    </button>
+  </div>
+))}
+
+<button onClick={addOptionBlock} className="flex items-center gap-2 mt-4 text-green-400 hover:text-green-600">
+  <PlusCircle size={22}/> Ajouter une option
+</button>
+      {/* <h3 className="text-lg font-semibold mt-4">Variantes (quantité/prix) :</h3>
       {variants.map((variant, index) => (
         <div key={index} className="flex gap-4 items-center mt-2">
           <input
@@ -272,7 +367,7 @@ const CreateProductPage = () => {
       ))}
       <button onClick={addVariant} className="flex items-center gap-2 mt-3 text-blue-400 hover:text-blue-600">
         <PlusCircle size={20} /> Ajouter une variante
-      </button>
+      </button> */}
 
       <div className="flex mt-6">
       <button 

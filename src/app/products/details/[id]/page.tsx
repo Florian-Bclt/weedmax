@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
-import { ProductWithVariants } from "@/types";
+import { ProductWithOptions } from "@/types";
 import { Star } from "lucide-react";
 import LoaderDark from "@/app/components/Loader/LoaderDark";
 import { FaCartPlus } from "react-icons/fa";
@@ -13,8 +13,9 @@ import RatingModal from "@/app/components/RatingModal";
 const ProductDetailPage = () => {
   const { id } = useParams();
   const { addToCart } = useCart();
-  const [product, setProduct] = useState<ProductWithVariants | null>(null);
-  const [selectedVariant, setSelectedVariant] = useState<any>(null);
+  const [product, setProduct] = useState<ProductWithOptions | null>(null);
+  const [selectedOption, setSelectedOption] = useState<ProductWithOptions["options"][0] | null>(null);
+  const [selectedVariant, setSelectedVariant] = useState<ProductWithOptions["options"][0]["variants"][0] | null>(null);
   const [loading, setLoading] = useState(true);
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
@@ -29,7 +30,10 @@ const ProductDetailPage = () => {
         const res = await fetch(`/api/products/${id}`);
         const data = await res.json();
         setProduct(data);
-        setSelectedVariant(data.variants[0]);
+        if (data?.options?.length > 0) {
+          setSelectedOption(data.options[0]);
+          setSelectedVariant(data.options[0]?.variants[0]);
+        }
       } catch (error) {
         console.error("Erreur lors du chargement du produit :", error);
       } finally {
@@ -41,7 +45,7 @@ const ProductDetailPage = () => {
   }, [id]);
 
   if (loading) return <LoaderDark />;
-  if (!product) return <p className="text-white p-4">Produit introuvable.</p>;
+  if (!product || !selectedOption || !selectedVariant) return <p className="text-white p-4">Produit introuvable.</p>;
 
   const imageUrl = product.images?.[0]?.url || "/images/logo.jpg";
 
@@ -180,19 +184,42 @@ const ProductDetailPage = () => {
               <span className="text-sm text-gray-400">({product.reviewCount || 0} avis)</span>
             </div>
 
+            {/* Selection option */}
+            {product.options.length > 1 && (
+              <select
+                className="text-gray-800 w-full p-2 rounded border text-sm mb-4"
+                value={selectedOption?.optionId}
+                onChange={(e) => {
+                  const opt = product.options.find(o => o.optionId === e.target.value);
+                  if (opt) {
+                    setSelectedOption(opt);
+                    setSelectedVariant(opt.variants[0]);
+                  }
+                }}
+              >
+                {product.options.map((opt) => (
+                  <option key={opt.optionId} value={opt.optionId}>
+                    {opt.option.name}
+                  </option>
+                ))}
+              </select>
+            )}
+
+            {/* Sélection variant */}
             <select
               className="text-gray-800 w-full p-2 rounded border text-sm mb-4"
-              value={selectedVariant?.quantity}
-              onChange={(e) =>
-                setSelectedVariant(
-                  product.variants.find(v => v.quantity === Number(e.target.value))!
-                )
-              }
+              value={selectedVariant?.id}
+              onChange={(e) => {
+                const variant = selectedOption.variants.find(v => v.id === e.target.value);
+                if (variant) setSelectedVariant(variant);
+              }}
             >
-              {product.variants.map((variant) => (
-                <option key={variant.id} value={variant.quantity}>
+              {selectedOption.variants.map((variant) => (
+                <option key={variant.id} value={variant.id}>
                   {getUnit() ? `${variant.quantity} ${getUnit()} - ` : ""}
-                  {Number(variant.price).toFixed(2)} €
+                  {product.isPromo && product.promoPercentage
+                    ? (Number(variant.price) - (Number(variant.price) * product.promoPercentage) / 100).toFixed(2)
+                    : Number(variant.price).toFixed(2)} €
                 </option>
               ))}
             </select>

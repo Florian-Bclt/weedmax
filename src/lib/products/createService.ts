@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 export const createProduct = async (productData: ProductData) => {
   try {
-    const { name, images, specs, description, stock, variants, categoryId, isNew, isPromo, promoPercentage, rating, reviewCount} = productData;
+    const { name, images, specs, description, stock, options, categoryId, isNew, isPromo, promoPercentage, rating, reviewCount} = productData;
 
     if (!categoryId) {
       throw new Error("La catégorie est obligatoire")
@@ -15,9 +15,14 @@ export const createProduct = async (productData: ProductData) => {
       throw new Error("Les images sont obligatoires");
     }
 
-    if (!variants || !Array.isArray(variants) || variants.length === 0) {
+    if (!options?.length) {
       throw new Error('Au moins une variante (quantité/prix) est requise.')
     }
+
+    const hasEmptyVariant = options.some(o => !o.variants || o.variants.length === 0);
+      if (hasEmptyVariant) {
+        throw new Error("Chaque option doit contenir au moins une variante (quantité/prix).");
+      }
 
     const formattedSpecs = specs.map(spec => `${spec.key}: ${spec.value}`);
 
@@ -34,15 +39,22 @@ export const createProduct = async (productData: ProductData) => {
         rating: rating ?? null,
         reviewCount: reviewCount ?? null,
         category: { connect: {id: categoryId} },
-        variants: {
-          create: variants.map(v => ({
-            quantity: v.quantity,
-            price: v.price
-          }))
-        }
+        options: {
+          create: options.map((opt) => ({
+            option: {
+              connect: { id: opt.optionId },
+            },
+            variants: {
+              create: opt.variants.map(v => ({
+                quantity: v.quantity,
+                price:    v.price,
+              })),
+            },
+          })),
+        },
       },
       include: {
-        variants: true,
+        options: { include: { variants: true }},
         category: true,
       }
     });

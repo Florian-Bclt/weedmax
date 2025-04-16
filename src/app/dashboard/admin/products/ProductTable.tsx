@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import ProductRow from "./ProductRow";
-import { ProductWithVariants } from "@/types";
+import { ProductWithOptions } from "@/types";
 
 const ProductTable = () => {
-  const [products, setProducts] = useState<ProductWithVariants[]>([]);
+  const [products, setProducts] = useState<ProductWithOptions[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -16,7 +16,7 @@ const ProductTable = () => {
         const data = await res.json();
 
         // Tri par date de création décroissante
-        const sorted = data.sort((a: ProductWithVariants, b: ProductWithVariants) =>
+        const sorted = data.sort((a: ProductWithOptions, b: ProductWithOptions) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
 

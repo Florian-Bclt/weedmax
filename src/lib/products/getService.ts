@@ -13,7 +13,12 @@ export const getAllProducts = async (categorySlug?: string) => {
         }
       } : undefined,
       include: {
-        variants: true,
+        options: {
+          include: {
+            option: true,
+            variants: true,
+          }
+        },
         category: true,
       },
     });
@@ -42,9 +47,14 @@ export const getProductById = async (id: string) => {
     return await prisma.product.findUnique({
       where: { id },
       include: {
-        variants: true,
+        options: {
+          include: {
+            option: true,
+            variants: true,
+          }
+        },
         category: true,
-      }
+      },
     });
   } catch (error) {
     console.error("Erreur lors de la récupération du produit:", error);
@@ -59,7 +69,12 @@ export const getNewProducts = async () => {
         isNew: true,
       },
       include: {
-        variants: true,
+        options: {
+          include: {
+            option: true,
+            variants: true,
+          }
+        },
         category: true,
       },
       orderBy: { createdAt: "desc" },
@@ -77,7 +92,12 @@ export const getPromoProducts = async () => {
         isPromo: true,
       },
       include: {
-        variants: true,
+        options: {
+          include: {
+            option: true,
+            variants: true,
+          }
+        },
         category: true,
       },
       orderBy: { createdAt: "desc" },

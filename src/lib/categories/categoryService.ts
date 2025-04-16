@@ -4,9 +4,16 @@ import slugify from "slugify"
 const prisma = new PrismaClient();
 
 export const getAllCategories = async () => {
-  return await prisma.category.findMany({
-    orderBy: { name: "asc" },
-  });
+  const categories = await prisma.category.findMany();
+
+  // 1. On sépare "promos" des autres
+  const promos = categories.find((cat) => cat.slug === "promos");
+  const others = categories
+    .filter((cat) => cat.slug !== "promos")
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  // 2. On place "promos" à la fin si elle existe
+  return promos ? [...others, promos] : others;
 };
 
 export const getCategoryById = async (id: string) => {

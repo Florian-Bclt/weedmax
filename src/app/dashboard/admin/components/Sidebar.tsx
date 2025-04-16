@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut, Home, Users, User, Package, Menu, X, Tags } from "lucide-react";
+import { LogOut, Home, Users, User, Package, Menu, X, Tags, Flower } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
@@ -23,6 +23,7 @@ const Sidebar = () => {
     { name: "Personnel", href: "/dashboard/admin/personnel", icon: <User size={20} /> },
     { name: "Produits", href: "/dashboard/admin/products", icon: <Package size={20} /> },
     { name: "Catégories", href: "/dashboard/admin/categories", icon: <Tags size={20} /> },
+    { name: "Options", href: "/dashboard/admin/options", icon: <Flower size={20} /> },
   ];
 
   return (

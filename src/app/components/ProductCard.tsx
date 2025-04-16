@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { ProductWithVariants } from "@/types";
+import { ProductWithOptions } from "@/types";
 import { Star } from "lucide-react";
 import { BiSolidBadge } from "react-icons/bi";
 import { FaCartPlus } from "react-icons/fa";
@@ -12,17 +12,33 @@ import toast from "react-hot-toast";
 import Link from "next/link";
 
 type Props = {
-  product: ProductWithVariants;
+  product: ProductWithOptions;
 };
 
 const ProductCard = ({ product }: Props) => {
   const { addToCart } = useCart();
-  const [selectedVariant, setSelectedVariant] = useState(product.variants[0]);
+  const [selectedOption, setSelectedOption] = useState(product.options[0]);
+  const [selectedVariant, setSelectedVariant] = useState(product.options[0]?.variants[0]);
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [localRating, setLocalRating] = useState<number | null>(product.rating || null);
   const [localReviewCount, setLocalReviewCount] = useState<number>(product.reviewCount || 0);
 
-  
+  // Gestion des options et variants
+  const handleOptionChange = (optionId: string) => {
+    const newOption = product.options.find((opt) => opt.optionId === optionId);
+    if (newOption) {
+      setSelectedOption(newOption);
+      setSelectedVariant(newOption.variants[0]);
+    }
+  }
+
+  const handleVariantChange = (variantId: string) => {
+    const newVariant = selectedOption?.variants.find(variant => variant.id === variantId);
+    if (newVariant) {
+      setSelectedVariant(newVariant);
+    }
+  }
+
   // Gestion des images
   const imageUrl =
     Array.isArray(product.images) && typeof product.images[0] === "object" && "url" in product.images[0]
@@ -32,7 +48,7 @@ const ProductCard = ({ product }: Props) => {
 
   // Logique pour le panier
   const handleAddToCart = () => {
-    if (!selectedVariant) return;
+    if (!selectedVariant || !selectedOption) return;
 
     addToCart({
       id: product.id,
@@ -73,7 +89,7 @@ const ProductCard = ({ product }: Props) => {
 
 
   return (
-    <div className="bg-white text-gray-600 p-4 rounded-lg shadow-lg border-none text-center">
+  <div className="bg-white text-gray-600 p-4 rounded-lg shadow-lg border-none text-center w-full max-w-[360px] mx-auto">
       <Link href={`/products/details/${product.id}`} className="block" prefetch={false}>
         <div className="relative w-full h-48 rounded overflow-hidden">
 
@@ -103,7 +119,7 @@ const ProductCard = ({ product }: Props) => {
       </Link>
 
       {/* Prix */}
-      <div className="text-red-400 mt-2 font-semibold">
+      <div className="text-red-400 font-semibold">
         {product.isPromo && product.promoPercentage ? (
           <div className="flex justify-center items-center">
             <span className="line-through text-gray-400 mr-2">
@@ -157,31 +173,52 @@ const ProductCard = ({ product }: Props) => {
         </div>
       </div>
 
-      {/* Variants */}
-      <div className="flex justify-between items-center gap-2 mt-6">
-        <select
-          className="text-gray-800 w-full p-2 rounded border text-sm" 
-          value={selectedVariant?.quantity}
-          onChange={(e) => setSelectedVariant(
-            product.variants.find(v => v.quantity === Number(e.target.value))!
+      {/* Options + Variants */}
+      <div className="my-2 space-y-3 text-left">
+        <div className="w-full space-y-2">
+          {/* Option Select */}
+          {product.options.length > 1 ? (
+            <select
+              className="text-gray-800 w-full p-2 rounded border text-sm"
+              value={selectedOption?.optionId}
+              onChange={(e) => handleOptionChange(e.target.value)}
+            >
+              {product.options.map((opt) => (
+                <option key={opt.optionId} value={opt.optionId}>
+                  {opt.option.name}
+                </option>
+              ))}
+            </select>
+          ) : (
+            // Placeholder vide pour garder la hauteur
+            <div className="h-[36px]" />
           )}
-        >
-          {product.variants.map((variant) => (
-            <option key={variant.id} value={variant.quantity}>
+          </div>
+
+        <div>
+          <label className="block text-sm font-semibold mb-1">Quantité :</label>
+          <select
+            className="text-gray-800 w-full p-2 rounded border text-sm"
+            value={selectedVariant?.id}
+            onChange={(e) => handleVariantChange(e.target.value)}
+          >
+            {selectedOption?.variants.map((variant) => (
+              <option key={variant.id} value={variant.id}>
                 {unit ? `${variant.quantity} ${unit} - ` : ""}
                 {product.isPromo && product.promoPercentage
                   ? (Number(variant.price) - (Number(variant.price) * product.promoPercentage) / 100).toFixed(2)
                   : Number(variant.price).toFixed(2)} €
-            </option>
-          ))}
-        </select>
-        <button 
-          className="px-6 py-3 bg-red-500 cursor-pointer text-white rounded-lg hover:scale-105 transition"
-          onClick={handleAddToCart}
-        >
-          <FaCartPlus size={18}/>
-        </button>
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
+      <button 
+        className="flex m-auto px-6 py-3 bg-red-500 cursor-pointer text-white rounded-lg hover:scale-105 transition"
+        onClick={handleAddToCart}
+      >
+        <FaCartPlus size={24} className="mr-2"/> Ajouter au panier
+      </button>
       {showRatingModal && (
         <RatingModal
           productId={product.id}

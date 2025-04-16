@@ -5,10 +5,10 @@ import ProductDetailsModal from "./ProductDetailsModal";
 import { Trash2, Eye, Pencil } from "lucide-react";
 import ReactDOM from "react-dom";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
-import { ProductWithVariants } from "@/types";
+import { ProductWithOptions } from "@/types";
 import { useRouter } from "next/navigation";
 
-const ProductRow: React.FC<{ product: ProductWithVariants }> = ({ product }) => {
+const ProductRow: React.FC<{ product: ProductWithOptions }> = ({ product }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -26,9 +26,12 @@ const ProductRow: React.FC<{ product: ProductWithVariants }> = ({ product }) => 
     }
   };
 
-  const displayPrice = Array.isArray(product.variants) && product.variants.length > 0
-  ? `${Number(product.variants[0].price).toFixed(2)} €`
-  : "N/A";
+  const displayPrice = (() => {
+    const allVariants = product.options.flatMap((opt) => opt.variants);
+    if (!allVariants.length) return "N/A";
+    const minPrice = Math.min(...allVariants.map((v) => Number(v.price)));
+    return `${minPrice.toFixed(2)} €`;
+  })();
 
   const totalStock = product.stock;
 

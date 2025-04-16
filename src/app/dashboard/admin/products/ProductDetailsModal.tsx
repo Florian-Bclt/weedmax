@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { X } from "lucide-react";
-import { ProductWithVariants } from "@/types";
+import { ProductWithOptions } from "@/types";
 
 const ProductDetailsModal: React.FC<{ productId: string; onClose: () => void }> = ({ productId, onClose }) => {
-  const [product, setProduct] = useState<ProductWithVariants | null>(null);
+  const [product, setProduct] = useState<ProductWithOptions | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -102,32 +102,40 @@ const ProductDetailsModal: React.FC<{ productId: string; onClose: () => void }> 
 
         {/* Caractéristiques */}
         <h3 className="text-lg font-semibold mt-4">Variantes disponibles :</h3>
-        <ul className="pl-2 mt-2 text-sm text-gray-300 space-y-1">
-          {product.variants?.map((variant, i) => {
-            const originalPrice = Number(variant.price);
-            const discounted = product.isPromo && product.promoPercentage
-              ? originalPrice - (originalPrice * (product.promoPercentage / 100))
-              : null;
+          <div className="mt-2 space-y-3">
+            {product.options?.map((opt) => (
+              <div key={opt.id}>
+                <h4 className="text-md font-semibold text-yellow-400 mb-1">{opt.option.name}</h4>
+                <ul className="pl-4 list-disc text-sm text-gray-300 space-y-1">
+                  {opt.variants.map((variant, i) => {
+                    const originalPrice = Number(variant.price);
+                    const discounted = product.isPromo && product.promoPercentage
+                      ? originalPrice - (originalPrice * (product.promoPercentage / 100))
+                      : null;
 
-            return (
-              <li key={i}>
-                {variant.quantity}g –
-                {discounted ? (
-                  <>
-                    <span className="line-through text-red-400 ml-1">
-                      {originalPrice.toFixed(2)} €
-                    </span>
-                    <span className="ml-2 text-green-400 font-semibold">
-                      {discounted.toFixed(2)} €
-                    </span>
-                  </>
-                ) : (
-                  <span className="ml-1">{originalPrice.toFixed(2)} €</span>
-                )}
-              </li>
-            );
-          })}
-        </ul>
+                    return (
+                      <li key={variant.id || i}>
+                        {variant.quantity}g –
+                        {discounted ? (
+                          <>
+                            <span className="line-through text-red-400 ml-1">
+                              {originalPrice.toFixed(2)} €
+                            </span>
+                            <span className="ml-2 text-green-400 font-semibold">
+                              {discounted.toFixed(2)} €
+                            </span>
+                          </>
+                        ) : (
+                          <span className="ml-1">{originalPrice.toFixed(2)} €</span>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </div>
+
 
         {/* Bouton fermer */}
         <button onClick={onClose} className="mt-6 px-4 py-2 bg-red-500 text-white rounded-lg w-full">
