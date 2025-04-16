@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ProductWithVariants } from "@/types";
+import { ProductWithOptions } from "@/types";
 import ProductCard from "@/app/components/ProductCard";
 import LoaderDark from "@/app/components/Loader/LoaderDark";
 import Link from "next/link";
 
 const PromoProductsPage = () => {
-  const [products, setProducts] = useState<ProductWithVariants[]>([]);
+  const [products, setProducts] = useState<ProductWithOptions[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
