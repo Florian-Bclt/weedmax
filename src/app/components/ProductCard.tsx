@@ -58,6 +58,7 @@ const ProductCard = ({ product }: Props) => {
       variantId: selectedVariant.id,
       variantQuantity: selectedVariant.quantity,
       price: Number(selectedVariant.price),
+      optionName: selectedOption?.option.name ?? null,
       promoPercentage: product.isPromo ? product.promoPercentage || 0 : 0,
     })
   }

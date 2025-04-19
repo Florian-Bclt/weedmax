@@ -5,9 +5,35 @@ const prisma = new PrismaClient();
 
 export const updateProduct = async (id: string, data: ProductUpdateData) => {
   try {
-    const formattedSpecs = data.specs?.map(spec => `${spec.key}: ${spec.value}`);
-    const formattedImages = data.images?.map(img => ({ url: img.url, public_id: img.public_id }));
+    // Formatage des specs : tableau de string "clé: valeur"
+    const formattedSpecs = data.specs?.map((spec) =>
+      typeof spec === "string" ? spec : `${spec.key}: ${spec.value}`
+    );
 
+    const formattedImages = data.images?.map((img) => ({
+      url: img.url,
+      public_id: img.public_id,
+    }));
+
+    // Supprimer toutes les anciennes options liées au produit
+    await prisma.productOption.deleteMany({
+      where: { productId: id },
+    });
+
+    // Recréer les nouvelles options et leurs variantes
+    const createdOptions = data.options?.map((opt) => ({
+      option: {
+        connect: { id: opt.optionId },
+      },
+      variants: {
+        create: opt.variants.map((v) => ({
+          quantity: v.quantity,
+          price: v.price,
+        })),
+      },
+    }));
+
+    // Mise à jour du produit
     const updatedProduct = await prisma.product.update({
       where: { id },
       data: {
@@ -22,14 +48,18 @@ export const updateProduct = async (id: string, data: ProductUpdateData) => {
         promoPercentage: data.promoPercentage ?? undefined,
         rating: data.rating ?? undefined,
         reviewCount: data.reviewCount ?? undefined,
-        variants: {
-          deleteMany: {},
-          create: data.variants?.map(v => ({ quantity: v.quantity, price: v.price })) || [],
+        options: {
+          create: createdOptions,
         },
       },
       include: {
-        variants: true,
-        category: true
+        options: {
+          include: {
+            option: true,
+            variants: true,
+          },
+        },
+        category: true,
       },
     });
 

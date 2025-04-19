@@ -9,6 +9,7 @@ export interface CartItem {
   quantity: number;
   price: number;
   variantId: string;
+  optionName?: string | null;
   variantQuantity: number;
   promoPercentage?: number;
 }
@@ -16,8 +17,8 @@ export interface CartItem {
 interface CartContextType {
   cart: CartItem[];
   addToCart: (item: CartItem) => void;
-  removeFromCart: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
+  removeFromCart: (id: string, variantId: string, optionName?: string | null) => void;
+  updateQuantity: (id: string, variantId: string, optionName: string | null, quantity: number) => void;
   total: number;
   totalQuantity: number;
   isCartOpen: boolean;
@@ -56,11 +57,19 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   // Logique de gestion du panier
   const addToCart = (item: CartItem) => {
     setCart((prevCart) => {
-      const existingItem = prevCart.find((cartItem) => cartItem.id === item.id);
+      const existingItem = prevCart.find((cartItem) =>
+        cartItem.id === item.id &&
+        cartItem.variantId === item.variantId &&
+        cartItem.optionName === item.optionName
+    );
 
       if (existingItem) {
         return prevCart.map((cartItem) =>
-          cartItem.id === item.id ? { ...cartItem, quantity: cartItem.quantity + 1 } : cartItem
+          cartItem.id === item.id &&
+          cartItem.variantId === item.variantId &&
+          cartItem.optionName === item.optionName
+        ? { ...cartItem, quantity: cartItem.quantity + 1 } 
+        : cartItem
         );
       } else {
         return [...prevCart, { ...item, quantity: 1 }];
@@ -69,15 +78,33 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     setIsCartOpen(true);
   };
 
-  const removeFromCart = (id: string) => {
-    setCart((prevCart) => prevCart.filter((item) => item.id !== id));
-  };
-
-  const updateQuantity = (id: string, quantity: number) => {
+  const removeFromCart = (id: string, variantId: string, optionName?: string | null) => {
     setCart((prevCart) =>
-      prevCart.map((item) => (item.id === id ? { ...item, quantity } : item))
+      prevCart.filter(
+        (item) =>
+          !(
+            item.id === id &&
+            item.variantId === variantId &&
+            (item.optionName ?? null) === (optionName ?? null)
+          )
+      )
     );
   };
+  
+
+  const updateQuantity = (id: string, variantId: string, optionName: string | null, quantity: number) => {
+    setCart((prevCart) =>
+      prevCart.map((item) =>
+        item.id === id &&
+        item.variantId === variantId &&
+        (item.optionName ?? null) === optionName
+          ? { ...item, quantity }
+          : item
+      )
+    );
+  };
+  
+  
 
   // Calcul le total avec la promo avant d'afficher dans le panier
   const calculateTotal = (items: CartItem[]) => {

@@ -90,17 +90,26 @@ const CartModal = () => {
               {cart.length === 0 ? (
                 <p className="text-center text-gray-400">Votre panier est vide.</p>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
                   {cart.map((item) => (
-                    <div key={item.id} className="flex items-center gap-4 bg-gray-800 p-3 rounded-lg">
+                    <div key={`${item.id}-${item.variantId}-${item.optionName ?? "no-option"}`} className="flex items-center gap-4 bg-gray-800 p-3 rounded-lg">
                       {/* Image */}
                       <div className="w-16 h-16 md:w-30 md:h-30 relative">
                         <Image src={item.image} alt={item.name} fill className="object-contain rounded-md" />
                       </div>
 
+
                       {/* Infos du produit */}
                       <div className="flex-1">
                         <h3 className="text-lg font-semibold">{item.name}</h3>
+                    
+                        {item.optionName && (
+                          <p className="text-sm text-gray-400">Option : {item.optionName}</p>
+                        )}
+
+                        <p className="test-sm text-gray-400">
+                          Variante : {item.variantQuantity} {item.name.toLocaleLowerCase().includes('huile') ? "ml" : "g"}
+                        </p>
 
                         {/* Prix dynamique */}
                         {item.promoPercentage && item.promoPercentage > 0 ? (
@@ -117,18 +126,18 @@ const CartModal = () => {
                         )}
                         
                         <div className="flex items-center gap-3 mt-2">
-                          <button onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={item.quantity <= 1}>
+                          <button onClick={() => updateQuantity(item.id, item.variantId, item.optionName ?? null, item.quantity - 1)} disabled={item.quantity <= 1}>
                             <Minus size={18} className="text-gray-400 hover:text-white transition" />
                           </button>
                           <span className="font-bold">{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>
+                          <button onClick={() => updateQuantity(item.id, item.variantId, item.optionName ?? null, item.quantity + 1)}>
                             <Plus size={18} className="text-gray-400 hover:text-white transition" />
                           </button>
                         </div>
                       </div>
 
                       {/* Supprimer */}
-                      <button onClick={() => removeFromCart(item.id)} className="text-red-500 hover:text-red-700 transition">
+                      <button onClick={() => removeFromCart( item.id, item.variantId, item.optionName )} className="text-red-500 hover:text-red-700 transition">
                         <Trash size={20} />
                       </button>
                     </div>

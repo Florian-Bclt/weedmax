@@ -26,10 +26,11 @@ export interface ProductUpdateData {
   stock?: number;
   categoryId?: string;
   options?: {
+    optionId: string;
     id?: string;
     name: string;
     variants: {id?: string, quantity: number; price: number }[];
-  }
+  }[];
   isNew?: boolean | null;
   isPromo?: boolean | null;
   promoPercentage?: number | null;
