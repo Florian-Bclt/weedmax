@@ -74,8 +74,11 @@ export default function Home() {
           transition={{ duration: 1, delay: 1 }}
           className="text-lg mb-6"
         >
-          Découvrez nos produits 100% naturels, conçus pour vous offrir une expérience unique.
+          Explorez notre gamme de produits premium, <br/>
+          entièrement légaux, conçus pour vous offrir <br/>
+          une expérience unique
         </motion.p>
+
          {/* Bouton CTA animé avec effet "pop" */}
          <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
@@ -90,6 +93,52 @@ export default function Home() {
             
           </Link>
         </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 1.1 }}
+          className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-6 z-10 px-6"
+        >
+          {[
+            {
+              title: "CBD",
+              effet: 1,
+              description: "Détente douce, sans effet psychoactif",
+              color: "from-green-400 to-green-600",
+            },
+            {
+              title: "MCP-N",
+              effet: 2,
+              description: "Relaxation intense, idéal en fin de journée",
+              color: "from-purple-400 to-purple-600",
+            },
+            {
+              title: "Delta-BZ10",
+              effet: 3,
+              description: "Effet fort et rapide, pour utilisateurs avertis",
+              color: "from-pink-400 to-pink-600",
+            },
+          ].map((declinaison, idx) => (
+            <div
+              key={idx}
+              className={`flex flex-col items-center text-center bg-gradient-to-br ${declinaison.color} rounded-xl p-4 shadow-lg bg-opacity-30 border border-white/10 backdrop-blur transition-transform hover:scale-105 hover:brightness-110 duration-300`}
+            >
+              <h3 className="text-2xl font-bold mb-2">{declinaison.title}</h3>
+              <div className="flex justify-center items-center">
+                <p className="text-md uppercase tracking-wider mb-1 text-white/80">Effet</p>
+                <div className="flex justify-center mb-2">
+                  {Array.from({ length: declinaison.effet }).map((_, i) => (
+                    <span key={i} className="text-yellow-400 text-lg ml-2">★</span>
+                  ))}
+                </div>
+              </div>
+
+              <p className="text-lg text-white/90">{declinaison.description}</p>
+            </div>
+          ))}
+        </motion.div>
+
       </motion.div>
     </main>
   );
