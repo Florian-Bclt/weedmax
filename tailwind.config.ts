@@ -18,6 +18,20 @@ export default {
         "gradient-light-reverse": "linear-gradient(to top, #ed4254, #fff2cd)"
       },
     },
+    keyframes: {
+      spinSlow: {
+        '0%': { transform: 'rotate(0deg)' },
+        '100%': { transform: 'rotate(360deg)' },
+      },
+      spinFast: {
+        '0%': { transform: 'rotate(0deg)' },
+        '100%': { transform: 'rotate(360deg)' },
+      },
+    },
+    animation: {
+      'spin-slow': 'spinSlow 1s linear infinite',
+      'spin-fast': 'spinFast 0.5s linear infinite reverse',
+    },
   },
   plugins: [],
 } satisfies Config;
