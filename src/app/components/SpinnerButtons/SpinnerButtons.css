@@ -27,6 +27,7 @@ border-left: 2px solid #ed4254;
 border-bottom: 2px solid transparent;
 animation: rotation 0.5s linear infinite reverse;
 }
+
 @keyframes rotation {
 0% {
     transform: rotate(0deg);
