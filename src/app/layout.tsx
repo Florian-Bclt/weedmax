@@ -1,10 +1,21 @@
 import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SessionProviderWrapper from "@/context/SessionProviderWrapper";
 import { CartProvider } from "@/context/CartContext";
 import LayoutWrapper from "./components/LayoutWrapper";
 import { Toaster } from "react-hot-toast";
 import CartModal from "./components/CartModal";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   title: "Weedmax",
@@ -37,7 +48,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: {children: React.ReactNode}) {
   return (
     <html lang="fr">
-      <body className="antialiased">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <SessionProviderWrapper>
           <CartProvider>
             <LayoutWrapper>
