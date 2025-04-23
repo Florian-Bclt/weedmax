@@ -1,4 +1,4 @@
-import { Product, ProductOption, ProductVariant, Option } from "@prisma/client";
+import { Product, ProductOption, ProductVariant, Option } from "@/generated/prisma";
 
 export interface ProductData {
   name: string;

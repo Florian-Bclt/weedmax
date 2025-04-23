@@ -1,5 +1,4 @@
-@import "tailwindcss/preflight";
-@import "tailwindcss/utilities";
+@import "tailwindcss";
 
 
 :root {
@@ -9,7 +8,22 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans), latin;
   --font-mono: var(--font-geist-mono), latin;
+  --primary: #242B6F;
+  --secondary: "#D00BA9";
 }
+
+@layer utilities {
+  .bg-gradient-light {
+    background-image: linear-gradient(to top, #fff2cd, #ed4254);
+  }
+  .bg-gradient-main {
+    background-image: linear-gradient(to right, #242B6F, #D00BA9);
+  }
+  .bg-gradient-light-reverse {
+    background-image: linear-gradient(to top, #ed4254, #fff2cd);
+  }
+}
+
 
 @media (prefers-color-scheme: dark) {
   :root {
